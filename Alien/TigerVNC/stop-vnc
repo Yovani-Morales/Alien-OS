@@ -1,0 +1,38 @@
+#!/bin/bash
+
+
+rm -rf /tmp/.* > /dev/null 2>&1
+
+is_root=false
+
+function kill_vnc() {
+	echo -e "\n[*] Deteniendo servidor VNC..."
+
+	if [ "$is_root" = true ]; then
+		vncserver -kill :2 > /dev/null 2>&1
+		rm /root/.vnc/localhost.localdomain:590* > /dev/null 2>&1
+	else
+		vncserver -kill :1 > /dev/null 2>&1
+		rm /home/$USER/.vnc/localhost.localdomain:590* > /dev/null 2>&1
+	fi
+}
+
+
+
+if [ `whoami` = "root" ]; then
+	if [ ! -f /root/.vnc/localhost.localdomain:5902.pid ]; then
+		echo -e "\n[x] No se ha ejecuta ningun servidor VNC coincidente para el usuario root."
+		exit 1
+	else
+		is_root=true
+		kill_vnc
+	fi
+else
+	if [ ! -f /home/$USER/.vnc/localhost.localdomain:5901.pid ]; then
+		echo -e "\n[x] No se ha ejecuta ningun servidor VNC coincidente para el usuario ${USER}."
+		exit 1
+	else
+		kill_vnc
+	fi
+
+fi

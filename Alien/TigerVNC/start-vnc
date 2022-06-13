@@ -1,0 +1,46 @@
+#!/bin/bash
+
+
+rm -rf /tmp/.* > /dev/null 2>&1
+
+is_root=false
+
+
+function start_vnc() {
+	echo -e "\n[*] Ejecutando TigerVNC..."
+
+	if [ "$is_root" = true ]; then
+		vncserver -geometry 1920x1080 -localhost no :2 > /dev/null 2>&1
+
+		echo -e "\n[*] Nuevo servidor VNC ejecutandose como root."
+		echo -e "[*] Conectese al: 127.0.0.1 o tambien al 'localhost'"
+		echo -e "[*] En el puerto: 5902"
+		echo -e "\n[!] Utilice la app de 'NetHunterKeX' para conectarse al servidor VNC."
+	else
+		vncserver -geometry 1920x1080 -localhost no :1 > /dev/null 2>&1
+
+		echo -e "\n[*] Nuevo servidor VNC ejecutandose como ${USER}"
+		echo -e "[*] Conectese al: 127.0.0.1 o tambien al 'localhost'"
+		echo -e "[*] En el puerto: 5901"
+		echo -e "\n[!] Utilice la app de 'NetHunterKeX' para conectarse al servidor VNC."
+	fi
+}
+
+if [ `whoami` = "root" ]; then
+	if [ -f /root/.vnc/localhost.localdomain:5902.pid ]; then
+		echo -e "\n[!] Ya se esta ejecutando un servidor VNC en el puerto 5902."
+		echo -e "[*] Puede detenerlo ejecutando: stop-vnc"
+	else
+		is_root=true
+		start_vnc
+	fi
+else
+	if [ -f /home/$USER/.vnc/localhost.localdomain:5901.pid ]; then
+		echo -e "\n[!] Ya se esta ejecutando un servidor VNC en el puerto 5901."
+		echo -e "[*] Puede detenerlo ejecutando: stop-vnc"
+	else
+		start_vnc
+	fi
+
+fi
+
